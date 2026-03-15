@@ -1,0 +1,39 @@
+reef,date,ssta_current,dhw_current,BAA_7day_max,risk_pct,risk_label,name,lat,lon
+southern_tonga,2026-03-12,1.8539,16.9171,4,97.2,Critical,Southern Tonga,-19.95,-175.05
+galapagos,2026-03-12,2.62,6.9957,3,96.4,Critical,"Galapagos, Ecuador",0.15,-90.625
+seychelles,2026-03-12,0.6332,1.5557,2,93.2,Critical,Seychelles,-7.0,51.325
+southern_cook_islands,2026-03-12,1.595,8.8214,4,92.7,Critical,Southern Cook Islands,-19.975,-163.625
+nauru,2026-03-12,1.3311,2.9986,2,90.3,Critical,Nauru,-0.525,166.925
+northern_tonga,2026-03-12,0.8893,5.2571,1,83.8,Critical,Northern Tonga,-15.8,-175.2
+abrolhos_reefs,2026-03-12,1.1143,0.3029,2,80.5,Critical,"Abrolhos Reefs, Brazil",-17.225,-39.0
+marshall_islands,2026-03-12,1.1654,0.0,1,79.1,Critical,Marshall Islands,8.45,167.1
+eastern_fsm,2026-03-12,0.7968,0.0,1,57.8,Warning,Eastern FSM,5.15,153.0
+gilbert_islands,2026-03-12,0.8118,0.0,0,57.6,Warning,"Gilbert Islands, Kiribati",0.35,173.2
+fernando_de_noronha,2026-03-12,0.8854,0.0,1,48.6,Watch,"Fernando de Noronha, Brazil",-3.875,-33.1
+palau,2026-03-12,0.9939,0.0,1,37.4,Watch,Palau,7.675,134.425
+western_fsm,2026-03-12,1.5204,0.0,1,24.3,Safe,Western FSM,9.1,139.45
+tuamotu_archipelago,2026-03-12,0.5346,0.0,1,17.7,Safe,Tuamotu Archipelago,-18.975,-141.5
+samoas,2026-03-12,0.7054,2.2843,1,17.5,Safe,Samoas,-12.825,-170.475
+maldives,2026-03-12,0.6279,0.0,1,16.8,Safe,Maldives,3.3,72.95
+society_archipelago,2026-03-12,0.2386,0.0,1,10.1,Safe,Society Archipelago,-16.95,-151.375
+northern_cook_islands,2026-03-12,0.1882,0.0,1,5.4,Safe,Northern Cook Islands,-10.95,-165.2
+veracruz,2026-03-12,3.1511,0.0,0,3.0,Safe,"Veracruz, Mexico",20.35,-96.075
+guam,2026-03-12,1.5329,0.0,0,2.7,Safe,Guam,13.15,144.625
+yucatan,2026-03-12,2.3989,0.0,0,2.5,Safe,Yucatan Peninsula,21.3,-90.325
+florida_keys,2026-03-12,1.88,0.0,0,1.4,Safe,Florida Keys,24.75,-81.625
+southeast_florida,2026-03-12,1.2071,0.0,0,1.3,Safe,Southeast Florida,26.3,-80.075
+johnston_atoll,2026-03-12,1.4189,0.0,0,1.3,Safe,Johnston Atoll,16.7,-169.475
+wake_atoll,2026-03-12,0.5568,0.0,0,1.2,Safe,Wake Atoll,19.3,166.8
+cayman_islands,2026-03-12,0.7418,0.0,0,1.1,Safe,Cayman Islands,19.5,-80.575
+belize,2026-03-12,0.9146,0.0,0,1.0,Safe,Belize,17.025,-88.075
+hawaii,2026-03-12,0.6464,0.0,0,0.9,Safe,Main Hawaiian Islands,20.575,-157.7
+central_bahamas,2026-03-12,0.8893,0.0,0,0.9,Safe,Central Bahamas,23.9,-77.425
+puerto_rico,2026-03-12,0.7575,0.0,0,0.8,Safe,Puerto Rico,18.2,-66.625
+turks_caicos,2026-03-12,0.6111,0.0,0,0.8,Safe,Turks and Caicos,22.0,-72.725
+usvi,2026-03-12,0.9643,0.0,0,0.8,Safe,Virgin Islands,18.2,-64.55
+windward_caribbean,2026-03-12,0.7232,0.0,0,0.8,Safe,Windward Caribbean Islands,13.4,-60.475
+jamaica,2026-03-12,0.6096,0.0,0,0.6,Safe,Jamaica,17.675,-77.25
+nwhi,2026-03-12,1.2211,0.0,0,0.6,Safe,Northwestern Hawaiian Islands,25.675,-170.125
+bermuda,2026-03-12,1.0107,0.0,0,0.6,Safe,Bermuda,32.35,-64.825
+leeward_caribbean,2026-03-12,0.7911,0.0,0,0.6,Safe,Leeward Caribbean Islands,16.775,-62.325
+flower_garden,2026-03-12,3.0096,0.0,0,0.5,Safe,"Flower Garden Banks, Texas",28.05,-93.975
