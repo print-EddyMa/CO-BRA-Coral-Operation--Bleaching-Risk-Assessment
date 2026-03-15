@@ -16,6 +16,41 @@ from xgboost import XGBClassifier
 import webbrowser
 from imblearn.over_sampling import SMOTE
 
+st.title("Coral Bleaching Prediction Map")
+user_location = [0,160]
+
+m = folium.Map(location=user_location, zoom_start=3)
+
+m.add_child(folium.LatLngPopup())
+
+map_data = st_folium(m, width=700, height=500)
+if map_data["last_clicked"]:
+    lat = map_data["last_clicked"]["lat"]
+    lon = map_data["last_clicked"]["lng"]
+
+    st.write("Selected Location:")
+    st.write(f'Latitude: {lat}')
+    st.write(f'Longitude: {lon}')
+
+    #PUT ML PREDICTION CODE HERE WHEN MADE
+
+    st.write("Fetching data for the selected location...")
+    time.sleep(1)
+    prediction = "Lock Risk of Coral Reef Bleaching for the next 4-6 Weeks"
+    st.write(f"Prediction: {prediction}")
+
+    folium.CircleMarker(
+        location=[lat, lon],
+        radius=7,
+        color='red',
+        fill=True,
+        fill_color='red',
+        fill_opacity=0.8,
+        popup = prediction
+    ).add_to(m)
+
+    st_folium(m, width=700, height=500)
+
 warnings.filterwarnings('ignore')
 
 # Loading Data
