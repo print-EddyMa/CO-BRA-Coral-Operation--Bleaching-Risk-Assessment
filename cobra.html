@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CO-BRA: Coral Operation--Bleaching Risk Assessment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #topbar {
+      height: 50px;
+      background: #111;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    #map { width: 100%; height: 100%; }
+
+    #mapwrap { flex: 1; position: relative; }
+
+    #main { display: flex; flex: 1; overflow: hidden; }
+
+    #panel {
+      width: 280px;
+      background: #0a0a0a;
+      border-left: 1px solid #222;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+      transform: translateX(100%);
+      transition: transform 0.25s;
+    }
+
+    #panel.open { transform: translateX(0); }
+
+    .pbtn {
+      padding: 3px 8px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: transparent;
+      color: #888;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .pbtn:hover { border-color: #fff; color: #fff; }
+
+    .pbtn.on {
+      border-color: #fff;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .mdot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+    }
+
+    .mdot:hover { transform: scale(1.4); }
+
+    .popbtn {
+      margin-top: 9px;
+      width: 100%;
+      padding: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .popbtn:hover { background: rgba(255,255,255,0.16); }
+
+    .leaflet-container { background: #050d14 !important; }
+    .leaflet-tile-pane { filter: brightness(0.5) saturate(0.5) hue-rotate(175deg); }
+    .leaflet-control-zoom a { background: #111 !important; border-color: #333 !important; color: #fff !important; }
+    .leaflet-control-attribution { display: none !important; }
+    .leaflet-popup-content-wrapper {
+      background: #111 !important;
+      border: 1px solid #333 !important;
+      border-radius: 7px !important;
+      color: #eee !important;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important;
+    }
+    .leaflet-popup-tip { background: #111 !important; }
+    .leaflet-popup-close-button { color: #555 !important; }
+  </style>
+</head>
+<body>
+
+<div id="topbar">
+  <h1 style="font-size:15px;">CO-BRA</h1>
+  <div style="width:1px; height:24px; background:#333;"></div>
+  <button class="pbtn" onclick="setPeriod(1, this)">1 day</button>
+  <button class="pbtn" onclick="setPeriod(3, this)">3 days</button>
+  <button class="pbtn on" onclick="setPeriod(7, this)">7 days</button>
+  <button class="pbtn" onclick="setPeriod(30, this)">30 days</button>
+  <button class="pbtn" onclick="setPeriod(42, this)">6 weeks</button>
+  <div style="margin-left:auto; font-size:11px; color:#555;">Mar 15 2026</div>
+</div>
+
+<div id="main">
+
+  <div id="mapwrap">
+    <div id="map"></div>
+
+    <div style="position:absolute; bottom:16px; left:14px; z-index:1000; background:rgba(0,0,0,0.88); border:1px solid #222; border-radius:6px; padding:10px 12px; font-size:11px; color:#777;">
+      <div style="font-size:9px; color:#444; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Bleaching Risk</div>
+      <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;"><div style="width:8px; height:8px; border-radius:50%; background:#e63c3c;"></div>Critical - above 75%</div>
+      <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;"><div style="width:8px; height:8px; border-radius:50%; background:#f07c20;"></div>Warning - 50 to 75%</div>
+      <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;"><div style="width:8px; height:8px; border-radius:50%; background:#f5c842;"></div>Watch - 25 to 50%</div>
+      <div style="display:flex; align-items:center; gap:7px;"><div style="width:8px; height:8px; border-radius:50%; background:#22c97d;"></div>Safe - below 25%</div>
+    </div>
+  </div>
+
+  <div id="panel">
+
+    <div id="emptymsg" style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; text-align:center; font-size:12px; color:#444; line-height:1.7;">
+      Click a marker on the map to view its prediction.
+    </div>
+
+    <div id="panelcontent" style="display:none; flex-direction:column;">
+
+      <div style="padding:12px; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+        <div>
+          <h3 id="pname" style="font-size:14px; line-height:1.3;"></h3>
+          <div id="subloc" style="font-size:11px; color:#666; margin-top:2px;"></div>
+        </div>
+        <button onclick="closePanel()" style="background:none; border:1px solid #333; color:#666; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:12px;">X</button>
+      </div>
+
+      <div style="padding:14px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+          <span style="font-size:10px; color:#666; text-transform:uppercase; letter-spacing:1px;">Bleaching Risk</span>
+          <span id="riskbig" style="font-size:28px; font-weight:bold;"></span>
+        </div>
+
+        <div style="height:8px; background:#1a1a1a; border-radius:4px; overflow:hidden; margin-bottom:4px;">
+          <div id="gaugefill" style="height:100%; border-radius:4px; transition:width 0.3s; width:0%;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size:9px; color:#444; margin-bottom:16px;">
+          <span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="background:#141414; border:1px solid #222; border-radius:6px; padding:9px 10px;">
+            <div style="font-size:9px; color:#555; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">NOAA Alert</div>
+            <div id="pbaa" style="font-size:13px; font-weight:bold;"></div>
+          </div>
+          <div style="background:#141414; border:1px solid #222; border-radius:6px; padding:9px 10px;">
+            <div style="font-size:9px; color:#555; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Risk Level</div>
+            <div id="plevel" style="font-size:13px; font-weight:bold;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+
+var period = 7;
+var activeReef = null;
+
+var reefs = [
+  { id: "galapagos",             name: "Galapagos, Ecuador",            location: "Pacific Ocean, Ecuador",  lat:   0.150, lon:  -90.625, r: 99, baa: 3 },
+  { id: "southern_tonga",        name: "Southern Tonga",                location: "South Pacific Ocean",     lat: -19.950, lon: -175.050, r: 98, baa: 4 },
+  { id: "northern_tonga",        name: "Northern Tonga",                location: "South Pacific Ocean",     lat: -15.800, lon: -175.200, r: 92, baa: 1 },
+  { id: "seychelles",            name: "Seychelles",                    location: "Indian Ocean",            lat:  -7.000, lon:   51.325, r: 65, baa: 2 },
+  { id: "nauru",                 name: "Nauru",                         location: "Central Pacific Ocean",   lat:  -0.525, lon:  166.925, r: 54, baa: 2 },
+  { id: "southern_cook_islands", name: "Southern Cook Islands",         location: "South Pacific Ocean",     lat: -19.975, lon: -163.625, r: 32, baa: 4 },
+  { id: "fernando_de_noronha",   name: "Fernando de Noronha, Brazil",   location: "South Atlantic Ocean",    lat:  -3.875, lon:  -33.100, r: 16, baa: 1 },
+  { id: "abrolhos_reefs",        name: "Abrolhos Reefs, Brazil",        location: "South Atlantic Ocean",    lat: -17.225, lon:  -39.000, r: 11, baa: 2 },
+  { id: "eastern_fsm",           name: "Eastern FSM",                   location: "Micronesia, Pacific",     lat:   5.150, lon:  153.000, r:  2, baa: 1 },
+  { id: "belize",                name: "Belize",                        location: "Caribbean Sea",           lat:  17.025, lon:  -88.075, r:  2, baa: 0 },
+  { id: "bermuda",               name: "Bermuda",                       location: "North Atlantic Ocean",    lat:  32.350, lon:  -64.825, r:  2, baa: 0 },
+  { id: "cayman_islands",        name: "Cayman Islands",                location: "Caribbean Sea",           lat:  19.500, lon:  -80.575, r:  2, baa: 0 },
+  { id: "central_bahamas",       name: "Central Bahamas",               location: "Atlantic Ocean",          lat:  23.900, lon:  -77.425, r:  2, baa: 0 },
+  { id: "florida_keys",          name: "Florida Keys",                  location: "Florida, USA",            lat:  24.750, lon:  -81.625, r:  2, baa: 0 },
+  { id: "flower_garden",         name: "Flower Garden Banks, Texas",    location: "Gulf of Mexico, USA",     lat:  28.050, lon:  -93.975, r:  2, baa: 0 },
+  { id: "gilbert_islands",       name: "Gilbert Islands, Kiribati",     location: "Central Pacific Ocean",   lat:   0.350, lon:  173.200, r:  2, baa: 0 },
+  { id: "guam",                  name: "Guam",                          location: "Western Pacific Ocean",   lat:  13.150, lon:  144.625, r:  2, baa: 0 },
+  { id: "hawaii",                name: "Main Hawaiian Islands",         location: "Hawaii, USA",             lat:  20.575, lon: -157.700, r:  2, baa: 0 },
+  { id: "jamaica",               name: "Jamaica",                       location: "Caribbean Sea",           lat:  17.675, lon:  -77.250, r:  2, baa: 0 },
+  { id: "johnston_atoll",        name: "Johnston Atoll",                location: "Central Pacific Ocean",   lat:  16.700, lon: -169.475, r:  2, baa: 0 },
+  { id: "leeward_caribbean",     name: "Leeward Caribbean Islands",     location: "Caribbean Sea",           lat:  16.775, lon:  -62.325, r:  2, baa: 0 },
+  { id: "maldives",              name: "Maldives",                      location: "Indian Ocean",            lat:   3.300, lon:   72.950, r:  2, baa: 1 },
+  { id: "marshall_islands",      name: "Marshall Islands",              location: "Central Pacific Ocean",   lat:   8.450, lon:  167.100, r:  2, baa: 1 },
+  { id: "northern_cook_islands", name: "Northern Cook Islands",         location: "South Pacific Ocean",     lat: -10.950, lon: -165.200, r:  2, baa: 1 },
+  { id: "nwhi",                  name: "Northwestern Hawaiian Islands", location: "Hawaii, USA",             lat:  25.675, lon: -170.125, r:  2, baa: 0 },
+  { id: "palau",                 name: "Palau",                         location: "Western Pacific Ocean",   lat:   7.675, lon:  134.425, r:  2, baa: 1 },
+  { id: "puerto_rico",           name: "Puerto Rico",                   location: "Caribbean Sea",           lat:  18.200, lon:  -66.625, r:  2, baa: 0 },
+  { id: "samoas",                name: "Samoas",                        location: "South Pacific Ocean",     lat: -12.825, lon: -170.475, r:  2, baa: 1 },
+  { id: "society_archipelago",   name: "Society Archipelago",           location: "French Polynesia",        lat: -16.950, lon: -151.375, r:  2, baa: 1 },
+  { id: "southeast_florida",     name: "Southeast Florida",             location: "Florida, USA",            lat:  26.300, lon:  -80.075, r:  2, baa: 0 },
+  { id: "tuamotu_archipelago",   name: "Tuamotu Archipelago",           location: "French Polynesia",        lat: -18.975, lon: -141.500, r:  2, baa: 1 },
+  { id: "turks_caicos",          name: "Turks and Caicos",              location: "Caribbean Sea",           lat:  22.000, lon:  -72.725, r:  2, baa: 0 },
+  { id: "usvi",                  name: "Virgin Islands",                location: "Caribbean Sea",           lat:  18.200, lon:  -64.550, r:  2, baa: 0 },
+  { id: "veracruz",              name: "Veracruz, Mexico",              location: "Gulf of Mexico",          lat:  20.350, lon:  -96.075, r:  2, baa: 0 },
+  { id: "wake_atoll",            name: "Wake Atoll",                    location: "Western Pacific Ocean",   lat:  19.300, lon:  166.800, r:  2, baa: 0 },
+  { id: "western_fsm",           name: "Western FSM",                   location: "Micronesia, Pacific",     lat:   9.100, lon:  139.450, r:  2, baa: 1 },
+  { id: "windward_caribbean",    name: "Windward Caribbean Islands",    location: "Caribbean Sea",           lat:  13.400, lon:  -60.475, r:  2, baa: 0 },
+  { id: "yucatan",               name: "Yucatan Peninsula",             location: "Gulf of Mexico",          lat:  21.300, lon:  -90.325, r:  2, baa: 0 }
+];
+
+function getColor(risk) {
+  if (risk >= 75) return '#e63c3c';
+  if (risk >= 50) return '#f07c20';
+  if (risk >= 25) return '#f5c842';
+  return '#22c97d';
+}
+
+function getLabel(risk) {
+  if (risk >= 75) return 'Critical';
+  if (risk >= 50) return 'Warning';
+  if (risk >= 25) return 'Watch';
+  return 'Safe';
+}
+
+function getBAA(b) {
+  if (b == 0) return 'None (0)';
+  if (b == 1) return 'Watch (1)';
+  if (b == 2) return 'Alert L1 (2)';
+  if (b == 3) return 'Alert L2 (3)';
+  return 'Alert L3 (4)';
+}
+
+function getRisk(baseRisk) {
+  var v;
+  if (period == 1)  v = Math.round(baseRisk * 0.12);
+  if (period == 3)  v = Math.round(baseRisk * 0.28);
+  if (period == 7)  v = Math.round(baseRisk * 0.50);
+  if (period == 30) v = Math.round(baseRisk * 0.82);
+  if (period == 42) v = Math.round(baseRisk * 1.00);
+  if (v < 2) v = 2;
+  if (v > 99) v = 99;
+  return v;
+}
+
+var map = L.map('map', { attributionControl: false }).setView([10, 20], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+for (var i = 0; i < reefs.length; i++) {
+
+  var reef = reefs[i];
+  var risk = getRisk(reef.r);
+  var color = getColor(risk);
+
+  var icon = L.divIcon({
+    className: '',
+    html: '<div class="mdot" style="background:' + color + '; box-shadow:0 0 4px ' + color + '80;"></div>',
+    iconSize: [13, 13],
+    iconAnchor: [6, 6]
+  });
+
+  var popupHTML = '<div style="padding:2px">'
+    + '<div style="font-size:13px; font-weight:bold; margin-bottom:2px;">' + reef.name + '</div>'
+    + '<div style="font-size:10px; color:#666; margin-bottom:8px;">' + reef.location + '</div>'
+    + '<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;"><span style="color:#555;">Risk Score</span><span style="color:' + color + '; font-weight:bold;">' + risk + '%</span></div>'
+    + '<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;"><span style="color:#555;">NOAA Alert</span><span>' + getBAA(reef.baa) + '</span></div>'
+    + '<button class="popbtn" onclick="showPanel(\'' + reef.id + '\')">View full prediction</button>'
+    + '</div>';
+
+  reef.marker = L.marker([reef.lat, reef.lon], { icon: icon }).addTo(map).bindPopup(popupHTML, { maxWidth: 210 });
+
+}
+
+function showPanel(reefId) {
+
+  map.closePopup();
+  activeReef = reefId;
+
+  var reef = null;
+  for (var i = 0; i < reefs.length; i++) {
+    if (reefs[i].id == reefId) {
+      reef = reefs[i];
+    }
+  }
+
+  var risk = getRisk(reef.r);
+  var color = getColor(risk);
+
+  document.getElementById('pname').innerHTML = reef.name;
+  document.getElementById('subloc').innerHTML = reef.location;
+  document.getElementById('riskbig').innerHTML = risk + '%';
+  document.getElementById('riskbig').style.color = color;
+  document.getElementById('gaugefill').style.width = risk + '%';
+  document.getElementById('gaugefill').style.backgroundColor = color;
+  document.getElementById('pbaa').innerHTML = getBAA(reef.baa);
+  document.getElementById('plevel').innerHTML = getLabel(risk);
+  document.getElementById('plevel').style.color = color;
+
+  document.getElementById('emptymsg').style.display = 'none';
+  document.getElementById('panelcontent').style.display = 'flex';
+  document.getElementById('panel').classList.add('open');
+
+  map.flyTo([reef.lat, reef.lon], Math.max(map.getZoom(), 5), { duration: 1 });
+
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  activeReef = null;
+  setTimeout(function() {
+    document.getElementById('panelcontent').style.display = 'none';
+    document.getElementById('emptymsg').style.display = 'flex';
+  }, 260);
+}
+
+function setPeriod(days, btn) {
+
+  period = days;
+
+  var allBtns = document.querySelectorAll('.pbtn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].classList.remove('on');
+  }
+  btn.classList.add('on');
+
+  for (var i = 0; i < reefs.length; i++) {
+
+    var reef = reefs[i];
+    var risk = getRisk(reef.r);
+    var color = getColor(risk);
+
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="mdot" style="background:' + color + '; box-shadow:0 0 4px ' + color + '80;"></div>',
+      iconSize: [13, 13],
+      iconAnchor: [6, 6]
+    });
+
+    var popupHTML = '<div style="padding:2px">'
+      + '<div style="font-size:13px; font-weight:bold; margin-bottom:2px;">' + reef.name + '</div>'
+      + '<div style="font-size:10px; color:#666; margin-bottom:8px;">' + reef.location + '</div>'
+      + '<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;"><span style="color:#555;">Risk Score</span><span style="color:' + color + '; font-weight:bold;">' + risk + '%</span></div>'
+      + '<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;"><span style="color:#555;">NOAA Alert</span><span>' + getBAA(reef.baa) + '</span></div>'
+      + '<button class="popbtn" onclick="showPanel(\'' + reef.id + '\')">View full prediction</button>'
+      + '</div>';
+
+    reef.marker.setIcon(icon);
+    reef.marker.setPopupContent(popupHTML);
+
+  }
+
+  if (activeReef != null) {
+    showPanel(activeReef);
+  }
+
+}
+
+</script>
+</body>
+</html>
