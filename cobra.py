@@ -3,6 +3,8 @@ from PIL import Image
 import urllib.request
 from io import BytesIO
 import time
+import streamlit as st
+from streamlit_folium import st_folium
 import pandas as pd
 import numpy as np
 from sklearn.metrics import (
@@ -15,30 +17,47 @@ import os
 from xgboost import XGBClassifier
 import webbrowser
 from imblearn.over_sampling import SMOTE
+import folium
 
+
+#creation of title for Stremlit app
 st.title("Coral Bleaching Prediction Map")
+
+#set default map location (Around Pacific Ocean)
 user_location = [0,160]
 
+#create Folium map centered on default location stated above, normal zoom
 m = folium.Map(location=user_location, zoom_start=3)
 
+#Allow users to click wherever and get latitude and longitude
 m.add_child(folium.LatLngPopup())
 
+#Render Folium map in Streamlit
 map_data = st_folium(m, width=700, height=500)
+
+#view users click on map
 if map_data["last_clicked"]:
+
+    #Extract latitude + longitude from user click location
     lat = map_data["last_clicked"]["lat"]
     lon = map_data["last_clicked"]["lng"]
 
+    #Display latitude and longitude to user
     st.write("Selected Location:")
     st.write(f'Latitude: {lat}')
     st.write(f'Longitude: {lon}')
 
-    #PUT ML PREDICTION CODE HERE WHEN MADE
-
+    #ML data placed here after completion in HTML
+    
+    #inform user of fetching data
     st.write("Fetching data for the selected location...")
+
+    #small pause, display data to user
     time.sleep(1)
-    prediction = "Lock Risk of Coral Reef Bleaching for the next 4-6 Weeks"
+    prediction = "Low Risk of Coral Reef Bleaching for the next 4-6 Weeks"
     st.write(f"Prediction: {prediction}")
 
+    #create circle marker over where user has clicked
     folium.CircleMarker(
         location=[lat, lon],
         radius=7,
@@ -49,6 +68,7 @@ if map_data["last_clicked"]:
         popup = prediction
     ).add_to(m)
 
+    #Re-render map to update where marker appears
     st_folium(m, width=700, height=500)
 
 warnings.filterwarnings('ignore')
