@@ -1,0 +1,39 @@
+reef,name,lat,lon
+florida_keys,Florida Keys,24.75,-81.625
+southeast_florida,Southeast Florida,26.3,-80.075
+bermuda,Bermuda,32.35,-64.825
+central_bahamas,Central Bahamas,23.9,-77.425
+turks_caicos,Turks and Caicos,22.0,-72.725
+puerto_rico,Puerto Rico,18.2,-66.625
+usvi,Virgin Islands,18.2,-64.55
+jamaica,Jamaica,17.675,-77.25
+belize,Belize,17.025,-88.075
+cayman_islands,Cayman Islands,19.5,-80.575
+leeward_caribbean,Leeward Caribbean Islands,16.775,-62.325
+windward_caribbean,Windward Caribbean Islands,13.4,-60.475
+flower_garden,"Flower Garden Banks, Texas",28.05,-93.975
+yucatan,Yucatan Peninsula,21.3,-90.325
+veracruz,"Veracruz, Mexico",20.35,-96.075
+hawaii,Main Hawaiian Islands,20.575,-157.7
+nwhi,Northwestern Hawaiian Islands,25.675,-170.125
+wake_atoll,Wake Atoll,19.3,166.8
+johnston_atoll,Johnston Atoll,16.7,-169.475
+guam,Guam,13.15,144.625
+palau,Palau,7.675,134.425
+marshall_islands,Marshall Islands,8.45,167.1
+galapagos,"Galapagos, Ecuador",0.15,-90.625
+samoas,Samoas,-12.825,-170.475
+northern_tonga,Northern Tonga,-15.8,-175.2
+southern_tonga,Southern Tonga,-19.95,-175.05
+northern_cook_islands,Northern Cook Islands,-10.95,-165.2
+southern_cook_islands,Southern Cook Islands,-19.975,-163.625
+tuamotu_archipelago,Tuamotu Archipelago,-18.975,-141.5
+society_archipelago,Society Archipelago,-16.95,-151.375
+abrolhos_reefs,"Abrolhos Reefs, Brazil",-17.225,-39.0
+fernando_de_noronha,"Fernando de Noronha, Brazil",-3.875,-33.1
+maldives,Maldives,3.3,72.95
+seychelles,Seychelles,-7.0,51.325
+eastern_fsm,Eastern FSM,5.15,153.0
+western_fsm,Western FSM,9.1,139.45
+gilbert_islands,"Gilbert Islands, Kiribati",0.35,173.2
+nauru,Nauru,-0.525,166.925
